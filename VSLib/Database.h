@@ -94,7 +94,7 @@ typedef std::shared_ptr<TADAQuery> QueryPtr;
 
 class Database : public Singleton<Database>
 {
-    TCriticalSection *CiriticalSection;
+    TCriticalSection *CriticalSection;
 
     TADOConnection *ErrDB;
     TADOConnection *MainDB;
@@ -126,4 +126,50 @@ public:
 
     bool __fastcall GetError(unsigned int code, DB_ERROR &error, int language);
     QueryPtr __fastcall GetLogQuery(TDateTime start);
-}
+
+    void __fastcall CheckDBFile();
+    bool __fastcall ConnectDB();
+
+    QueryPtr __fastcall QueryLog(const String queryStr);
+    bool __fastcall SaveLog(const TDateTime logTime,
+                            const String msg,
+                            const int type);
+    bool __fastcall SaveAlarmLog(const TDateTime logTime,
+                                 const String msg,
+                                 const int type,
+                                 const int errorCode);
+
+    QueryPtr __fastcall QueryRecipe();
+    bool __fastcall AddRecipe(const OVEN_RECIPE dbRecipe);
+    bool __fastcall EditRecipe(const String sRecipe,
+                               const OVEN_RECIPE newRecipe);
+    bool __fastcall DeleteRecipe(const OVEN_RECIPE dbRecipe);
+    bool __fastcall DeleteRecipe(const String sRecipe);
+    bool __fastcall IsRecipeExist(const String sRecipe);
+    bool __fastcall IsRecipeExist(const int patNo);
+    bool __fastcall GetRecipe(const String recipe, OVEN_RECIPE &recipeInfo);
+    bool __fastcall UpdateRecipeWithPtnNo(const int patNo, bool remote = false);
+    bool __fastcall DeleteRecipeWithPtnNo(const int patNo);
+    bool __fastcall GetRecipeList(TStringList *list);
+    bool __fastcall GetRecipeName(const int patNo, String &name);
+
+    QueryPtr __fastcall QueryWork(TDateTime start, TDateTime end);
+    QueryPtr __fastcall QueryWork(int chamberNo, TDateTIme start, TDateTime end);
+    bool __fastcall GetWorkNotEnd(int chamberNo, OVEN_WORK &work);
+    bool __fastcall GetWorkNotEnd(int chamberNo, OVEN_WORK &work, LOTINFO &lotInfo);
+    bool __fastcall GetWorkEnd(int chamberNo, OVEN_WORK &work);
+    bool __fastcall IsDataFileExist(int chamberNo, TDateTIme date);
+    int __fastcall GetDataFileCount(int chamberNo, TDateTime date);
+
+    bool __fastcall SaveWork(OVEN_WORK work);
+    bool __fastcall SaveWork(OVEN_WORK work, String productCode);
+    bool __fastcall SaveWork(OVEN_WORK work, LOTINFO lotInfo);
+    bool __fastcall SaveWork(OVEN_WORK work, LOTINFO lotInfo, String productCode);
+    bool __fastcall SaveWorkEnd(OVEN_WORK work, int endType);
+    bool __fastcall SaveWorkEnd(OVEN_WORK work, int endType, Stirng productFile);
+};
+
+#define GetDB() Singleton<Database>::GetInstance()
+#define ReleaseDB() Singleton<Database>::ReleaseInstance()
+
+#endif
